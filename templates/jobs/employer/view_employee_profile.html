@@ -1,0 +1,234 @@
+{% extends 'employer/base.html' %}
+{% load static %}
+
+{% block title %}{{ employee.get_full_name }}'s Profile{% endblock %}
+
+{% block content %}
+<section class="py-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <div class="card border-0 shadow-lg rounded-3">
+                    <div class="card-body p-5">
+                        <!-- Profile Header -->
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h2 class="fw-bold mb-1" style="color: #495057;">{{ employee.get_full_name }}</h2>
+                                <p class="text-muted mb-0">{{ employee.headline|default:"" }}</p>
+                            </div>
+                            <div class="rounded-circle bg-light p-3">
+                                <i class="fa fa-user-circle fa-2x" style="color: #6c757d;"></i>
+                            </div>
+                        </div>
+
+                        <!-- Basic Information -->
+                        <div class="card bg-light border-0 mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3" style="color: #495057;">
+                                    <i class="fa fa-user me-2"></i>Basic Information
+                                </h5>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <p class="mb-1 text-muted">Full Name</p>
+                                        <p class="mb-3 fw-medium">{{ employee.get_full_name }}</p>
+                                    </div>
+                                    {% if employee.gender %}
+                                    <div class="col-md-6">
+                                        <p class="mb-1 text-muted">Gender</p>
+                                        <p class="mb-3 fw-medium">
+                                            <i class="fa {% if employee.gender == 'male' %}fa-male{% else %}fa-female{% endif %} me-2"></i>
+                                            {{ gender_display }}
+                                        </p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Professional Information -->
+                        <div class="card bg-light border-0 mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3" style="color: #495057;">
+                                    <i class="fa fa-briefcase me-2"></i>Professional Information
+                                </h5>
+                                <div class="row g-3">
+                                    {% if employee.headline %}
+                                    <div class="col-12">
+                                        <p class="mb-1 text-muted">Professional Headline</p>
+                                        <p class="mb-3 fw-medium">{{ employee.headline }}</p>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if employee.current_position %}
+                                    <div class="col-md-6">
+                                        <p class="mb-1 text-muted">Current Position</p>
+                                        <p class="mb-3 fw-medium">{{ employee.current_position }}</p>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if employee.current_company %}
+                                    <div class="col-md-6">
+                                        <p class="mb-1 text-muted">Current Company</p>
+                                        <p class="mb-3 fw-medium">{{ employee.current_company }}</p>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if employee.experience_years %}
+                                    <div class="col-md-6">
+                                        <p class="mb-1 text-muted">Years of Experience</p>
+                                        <p class="mb-3 fw-medium">{{ experience_years_display }}</p>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if employee.highest_education %}
+                                    <div class="col-md-6">
+                                        <p class="mb-1 text-muted">Highest Education</p>
+                                        <p class="mb-3 fw-medium">{{ education_level_display }}</p>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if employee.education_details %}
+                                    <div class="col-12">
+                                        <p class="mb-1 text-muted">Education Details</p>
+                                        <p class="mb-3 fw-medium">{{ employee.education_details }}</p>
+                                    </div>
+                                    {% endif %}
+
+                                    {% if employee.resume %}
+                                    <div class="col-12">
+                                        <p class="mb-1 text-muted">Resume</p>
+                                        <p class="mb-3">
+                                            <a href="{% url 'jobs:employee-resume' employee.id %}" class="btn btn-outline-dark btn-sm rounded-pill" target="_blank">
+                                                <i class="fa fa-file-alt me-2"></i>View Resume
+                                            </a>
+                                        </p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Skills & Bio -->
+                        <div class="card bg-light border-0 mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3" style="color: #495057;">
+                                    <i class="fa fa-star me-2"></i>Skills & Summary
+                                </h5>
+                                {% if skills_list %}
+                                <div class="mb-4">
+                                    <p class="mb-2 text-muted">Skills</p>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        {% for skill in skills_list %}
+                                        <span class="badge bg-secondary rounded-pill px-3 py-2">{{ skill }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if employee.bio %}
+                                <div>
+                                    <p class="mb-2 text-muted">Professional Bio</p>
+                                    <p class="mb-0">{{ employee.bio }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Contact & Social Links -->
+                        <div class="card bg-light border-0 mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3" style="color: #495057;">
+                                    <i class="fa fa-link me-2"></i>Contact & Social Links
+                                </h5>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <p class="mb-1 text-muted">Email</p>
+                                        <p class="mb-3 fw-medium">
+                                            <i class="fa fa-envelope me-2"></i>
+                                            <a href="mailto:{{ employee.email }}" class="text-decoration-none">{{ employee.email }}</a>
+                                        </p>
+                                    </div>
+                                    {% if employee.phone_number %}
+                                    <div class="col-md-6">
+                                        <p class="mb-1 text-muted">Phone</p>
+                                        <p class="mb-3 fw-medium">
+                                            <i class="fa fa-phone me-2"></i>
+                                            <a href="tel:{{ employee.phone_number }}" class="text-decoration-none">{{ employee.phone_number }}</a>
+                                        </p>
+                                    </div>
+                                    {% endif %}
+                                    {% if employee.linkedin_profile %}
+                                    <div class="col-md-6">
+                                        <p class="mb-1 text-muted">LinkedIn</p>
+                                        <p class="mb-3 fw-medium">
+                                            <i class="fab fa-linkedin me-2"></i>
+                                            <a href="{{ employee.linkedin_profile }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">View Profile</a>
+                                        </p>
+                                    </div>
+                                    {% endif %}
+                                    {% if employee.github_profile %}
+                                    <div class="col-md-6">
+                                        <p class="mb-1 text-muted">GitHub</p>
+                                        <p class="mb-3 fw-medium">
+                                            <i class="fab fa-github me-2"></i>
+                                            <a href="{{ employee.github_profile }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">View Profile</a>
+                                        </p>
+                                    </div>
+                                    {% endif %}
+                                    {% if employee.portfolio_website %}
+                                    <div class="col-md-6">
+                                        <p class="mb-1 text-muted">Portfolio</p>
+                                        <p class="mb-3 fw-medium">
+                                            <i class="fa fa-globe me-2"></i>
+                                            <a href="{{ employee.portfolio_website }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">Visit Website</a>
+                                        </p>
+                                    </div>
+                                    {% endif %}
+                                    {% if employee.address %}
+                                    <div class="col-12">
+                                        <p class="mb-1 text-muted">Address</p>
+                                        <p class="mb-0 fw-medium">
+                                            <i class="fa fa-map-marker-alt me-2"></i>
+                                            {{ employee.address }}
+                                        </p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a href="javascript:history.back()" class="btn btn-light px-4 rounded-pill">
+                                <i class="fa fa-arrow-left me-2"></i>Back
+                            </a>
+                            <div>
+                                {% if employee.resume %}
+                                <a href="{% url 'jobs:employee-resume' employee.id %}" class="btn btn-outline-dark px-4 rounded-pill me-2" target="_blank">
+                                    <i class="fa fa-file-alt me-2"></i>View Resume
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'jobs:chat' user_id=employee.id %}" class="btn btn-dark px-4 rounded-pill"
+                                   style="background: linear-gradient(135deg, #495057 0%, #6c757d 100%); border: none;">
+                                    <i class="fa fa-comments me-2"></i>Chat
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block styles %}
+<style>
+    .badge {
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+    .fw-medium {
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+{% endblock %}

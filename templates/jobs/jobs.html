@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Available Jobs
+{% endblock %}
+
+{% block styles %}
+<style>
+    .job-search-section {
+        background: #fff;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .search-heading {
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .search-form {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+    }
+
+    .search-input {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #f9fafb;
+    }
+
+    .search-input:focus {
+        border-color: #111827;
+        box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.1);
+        background: #fff;
+    }
+
+    .search-button {
+        background: #8B4513;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        height: 100%;
+        width: 100%;
+    }
+
+    .search-button:hover {
+        background: #8B4513;
+        transform: translateY(-2px);
+    }
+
+    .job-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .job-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border-color: #111827;
+    }
+
+    .company-logo {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .job-title {
+        color:rgb(13, 12, 12);
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .job-title a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .job-title a:hover {
+        color: #4b5563;
+    }
+
+    .job-company {
+        color: #6b7280;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+
+    .job-meta {
+        color: #6b7280;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .job-meta i {
+        color: #111827;
+    }
+
+    .jobs-count {
+        text-align: center;
+        margin: 2rem 0;
+        font-size: 1.5rem;
+        color:rgb(12, 13, 17);
+    }
+
+    .jobs-count span {
+        color:rgb(10, 12, 16);
+        font-weight: 600;
+    }
+
+    .pagination {
+        margin: 2rem 0;
+    }
+
+    .page-link {
+        color:rgb(11, 13, 17);
+        padding: 0.75rem 1rem;
+        margin: 0 0.25rem;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .page-link:hover {
+        background: #f9fafb;
+        color:rgb(10, 12, 16);
+        border-color: #e5e7eb;
+    }
+
+    .page-item.active .page-link {
+        background-color: #111827;
+        border-color: #111827;
+        color: white;
+    }
+
+    .page-item.disabled .page-link {
+        color: #9ca3af;
+        background: #f9fafb;
+        border-color: #e5e7eb;
+    }
+
+    .input-group-text {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        color: #6b7280;
+    }
+
+    @media (max-width: 768px) {
+        .search-form {
+            padding: 1rem;
+        }
+        
+        .job-card {
+            padding: 1rem;
+        }
+        
+        .company-logo {
+            width: 50px;
+            height: 50px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+    <div class="container">
+        <h3 class="jobs-count">
+            {% if jobs.count == 0 %}
+                No jobs found
+            {% elif jobs.count == 1 %}
+                1 Job Found
+            {% else %}
+                <span>{{ jobs.count }}</span> Jobs Found
+            {% endif %}
+        </h3>
+
+        {% for job in jobs %}
+            <div class="job-card">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-center">
+                          
+                            <div>
+                                <h4 class="job-title">
+                                    <a href="{% url 'jobs:jobs-detail' job.id %}">{{ job.title }}</a>
+                                </h4>
+                                <p class="job-company mb-0">
+                                    <i class="fas fa-building me-2"></i>{{ job.company_name }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="job-meta">
+                            <div class="me-3">
+                                <i class="fas fa-map-marker-alt me-1"></i>
+                                {{ job.location }}
+                            </div>
+                            <div>
+                                <i class="fas fa-clock me-1"></i>
+                                {{ job.created_at|timesince }} ago
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h4>No jobs found</h4>
+                <p class="text-muted">Try adjusting your search criteria</p>
+            </div>
+        {% endfor %}
+
+        {% if is_paginated %}
+            <nav aria-label="Job listings pagination" class="d-flex justify-content-center">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a href="?page={{ page_obj.previous_page_number }}" class="page-link" aria-label="Previous">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                <i class="fas fa-chevron-left"></i>
+                            </span>
+                        </li>
+                    {% endif %}
+
+                    {% for i in page_obj.paginator.page_range %}
+                        {% if page_obj.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a href="?page={{ i }}" class="page-link">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a href="?page={{ page_obj.next_page_number }}" class="page-link" aria-label="Next">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    </div>
+{% endblock %}

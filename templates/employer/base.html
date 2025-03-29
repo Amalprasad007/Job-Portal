@@ -1,0 +1,326 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}{% endblock %} - Employer Dashboard</title>
+    <meta name="description" content="Find your dream job or hire the perfect candidate with WorkSphere">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        :root {  
+            --primary-color: #8B4513;
+            --secondary-color: #6B3410;
+            --accent-color: #A65D1E;
+            --text-color: #1f2937;
+            --light-bg: #f5f2f0;
+            --success-color: #8B4513;
+            --danger-color: #dc2626;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .navbar {
+            padding: 1rem 0;
+            background: transparent !important;
+            box-shadow: none;
+            position: absolute;
+            width: 100%;
+            z-index: 1000;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color) !important;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-link {
+            color: var(--text-color) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            transition: all 0.3s ease;
+            border-radius: 0.375rem;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+            background: rgba(139, 69, 19, 0.1);
+        }
+        
+        .nav-link.active {
+            color: var(--primary-color) !important;
+            background: rgba(139, 69, 19, 0.2);
+        }
+        
+        .btn {
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary {
+            color: var(--primary-color);
+            background-color: transparent;
+            border: 2px solid var(--primary-color);
+            padding: 0.5rem 1.2rem;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            color: #fff;
+            padding: 0.5rem 1.2rem;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        /* Dropdown styles */
+        .dropdown-menu {
+            border: 1px solid rgba(139, 69, 19, 0.1);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            background-color: #fff;
+            margin-top: 0.5rem;
+        }
+
+        .dropdown-item {
+            color: var(--text-color) !important;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(139, 69, 19, 0.1);
+            color: var(--primary-color) !important;
+        }
+
+        .dropdown-divider {
+            border-top-color: rgba(139, 69, 19, 0.1);
+        }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            padding-top: 80px;
+            background-color: var(--light-bg);
+        }
+
+        /* Card styles */
+        .card {
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+            padding: 1.25rem;
+        }
+
+        /* Stats cards */
+        .stats-card {
+            transition: transform 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-card .icon {
+            width: 48px;
+            height: 48px;
+            background-color: rgba(139, 69, 19, 0.1);
+            color: var(--primary-color);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--light-bg);
+            padding: 1.5rem 0;
+            border-top: 1px solid rgba(139, 69, 19, 0.1);
+            margin-top: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                background: #fff !important;
+                position: fixed;
+            }
+        }
+
+        /* Additional dropdown styles */
+        .nav-icon {
+            margin-right: 8px;
+            width: 16px;
+            text-align: center;
+        }
+        
+        .dropdown-toggle::after {
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        
+        .dropdown-menu {
+            padding: 8px;
+            min-width: 200px;
+        }
+        
+        .dropdown-item {
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+        
+        .dropdown-divider {
+            margin: 8px 0;
+        }
+        
+        /* Ensure dropdowns work on hover for desktop */
+        @media (min-width: 992px) {
+            .dropdown:hover .dropdown-menu {
+                display: block;
+                margin-top: 0;
+            }
+        }
+    </style>
+    {% block styles %}{% endblock %}
+</head>
+<body class="{% block body_class %}page-without-hero{% endblock %}">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'jobs:employer-dashboard' %}">
+                <i class="fas fa-building"></i>EMPLOYER DASHBOARD
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'employer-dashboard' %}active{% endif %}" 
+                           href="{% url 'jobs:employer-dashboard' %}">
+                            <i class="fas fa-tachometer-alt nav-icon"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if 'employer-jobs' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-briefcase nav-icon"></i>Jobs Management
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'jobs:employer-jobs' %}">
+                                    <i class="fas fa-list nav-icon"></i> View All Jobs
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'jobs:employer-jobs-create' %}">
+                                    <i class="fas fa-plus-circle nav-icon"></i> Post New Job
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if 'applicants' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-users nav-icon"></i>Applicants
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'jobs:employer-all-applicants' %}">
+                                    <i class="fas fa-user-friends nav-icon"></i> All Applicants
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle nav-icon"></i>Account
+                        </a>
+                        <ul class="dropdown-menu">
+                           
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'accounts:logout' %}">
+                                    <i class="fas fa-sign-out-alt nav-icon"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% if messages %}
+        <div class="container mt-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3">
+        <div class="container text-center">
+            <p class="mb-0">&copy; {% now "Y" %} Career Hub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

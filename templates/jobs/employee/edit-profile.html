@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Edit Profile
+{% endblock %}
+
+{% block content %}
+<section class="py-5" style="background-color: var(--light-bg);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <div class="card border-0 shadow-lg rounded-3">
+                    <div class="card-body p-5">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h2 class="fw-bold mb-1" style="color: var(--dark-text);">Upgrade Your Profile</h2>
+                                <p class="text-muted mb-0">Make your profile stand out!</p>
+                            </div>
+                            <div class="rounded-circle bg-light p-3">
+                                <i class="fa fa-user-circle fa-2x" style="color: var(--dark-text);"></i>
+                            </div>
+                        </div>
+
+                        {% if form.errors %}
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-3" role="alert">
+                                        <i class="fa fa-exclamation-circle me-2"></i>
+                                        {{ error|escape }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-3" role="alert">
+                                    <i class="fa fa-exclamation-circle me-2"></i>
+                                    {{ error|escape }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form action="" method="post" enctype="multipart/form-data" class="mt-4">
+                            {% csrf_token %}
+                            
+                            <!-- Basic Information -->
+                            <div class="card bg-light border-0 mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-3" style="color: var(--dark-text);">
+                                        <i class="fa fa-user me-2"></i>Basic Information
+                                    </h5>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="id_first_name" class="form-label fw-medium mb-2" style="color: var(--dark-text);">First Name</label>
+                                                <input type="text" class="form-control" name="first_name" id="id_first_name" value="{{ form.first_name.value|default:'' }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="id_last_name" class="form-label fw-medium mb-2" style="color: var(--dark-text);">Last Name</label>
+                                                <input type="text" class="form-control" name="last_name" id="id_last_name" value="{{ form.last_name.value|default:'' }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label fw-medium mb-2" style="color: var(--dark-text);">Gender</label>
+                                                <div class="d-flex gap-4">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="gender" id="male" value="male" {% if form.gender.value == 'male' %}checked{% endif %}>
+                                                        <label class="form-check-label text-secondary" for="male">
+                                                            <i class="fa fa-male me-2"></i>Male
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="gender" id="female" value="female" {% if form.gender.value == 'female' %}checked{% endif %}>
+                                                        <label class="form-check-label text-secondary" for="female">
+                                                            <i class="fa fa-female me-2"></i>Female
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Professional Information -->
+                            <div class="card bg-light border-0 mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-3" style="color: var(--dark-text);">
+                                        <i class="fa fa-briefcase me-2"></i>Professional Background
+                                    </h5>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="id_headline" class="form-label fw-medium mb-2" style="color: var(--dark-text);">Professional Headline</label>
+                                                <input type="text" class="form-control" name="headline" id="id_headline" value="{{ form.headline.value|default:'' }}" placeholder="e.g., Senior Python Developer">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="id_highest_education" class="form-label fw-medium mb-2" style="color: var(--dark-text);">Highest Education</label>
+                                                <select class="form-select" name="highest_education" id="id_highest_education">
+                                                    <option value="">Select Education Level</option>
+                                                    <option value="high_school" {% if form.highest_education.value == 'high_school' %}selected{% endif %}>High School</option>
+                                                    <option value="bachelors" {% if form.highest_education.value == 'bachelors' %}selected{% endif %}>Bachelor's Degree</option>
+                                                    <option value="masters" {% if form.highest_education.value == 'masters' %}selected{% endif %}>Master's Degree</option>
+                                                    <option value="phd" {% if form.highest_education.value == 'phd' %}selected{% endif %}>Ph.D.</option>
+                                                    <option value="other" {% if form.highest_education.value == 'other' %}selected{% endif %}>Other</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="id_education_details" class="form-label fw-medium mb-2" style="color: var(--dark-text);">Education Details</label>
+                                                <input type="text" class="form-control" name="education_details" id="id_education_details" 
+                                                       value="{{ form.education_details.value|default:'' }}" 
+                                                       placeholder="e.g., B.Tech in Computer Science from XYZ University">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="id_current_position" class="form-label fw-medium mb-2" style="color: var(--dark-text);">Current Position</label>
+                                                <input type="text" class="form-control" name="current_position" id="id_current_position" value="{{ form.current_position.value|default:'' }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="id_current_company" class="form-label fw-medium mb-2" style="color: var(--dark-text);">Current Company</label>
+                                                <input type="text" class="form-control" name="current_company" id="id_current_company" value="{{ form.current_company.value|default:'' }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="id_experience_years" class="form-label fw-medium mb-2" style="color: var(--dark-text);">Years of Experience</label>
+                                                <select class="form-select" name="experience_years" id="id_experience_years">
+                                                    <option value="">Select Experience</option>
+                                                    {% for value, label in form.fields.experience_years.choices %}
+                                                        <option value="{{ value }}" {% if form.experience_years.value == value %}selected{% endif %}>{{ label }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="id_resume" class="form-label fw-medium mb-2" style="color: var(--dark-text);">Resume</label>
+                                                <input type="file" class="form-control" name="resume" id="id_resume" accept=".pdf,.doc,.docx">
+                                                {% if form.resume.value %}<small class="text-muted">Current: {{ form.resume.value }}</small>{% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Skills & Bio -->
+                            <div class="card bg-light border-0 mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-3" style="color: var(--dark-text);">
+                                        <i class="fa fa-star me-2"></i>Key Skills & Overview
+                                    </h5>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="id_skills" class="form-label fw-medium mb-2" style="color: var(--dark-text);">Skills</label>
+                                                <input type="text" class="form-control" name="skills" id="id_skills" value="{{ form.skills.value|default:'' }}" placeholder="e.g., Python, Django, JavaScript, React">
+                                                <small class="text-muted">Separate skills with commas</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="id_bio" class="form-label fw-medium mb-2" style="color: var(--dark-text);">Professional Bio</label>
+                                                <textarea class="form-control" name="bio" id="id_bio" rows="4" placeholder="Write a brief summary about yourself">{{ form.bio.value|default:'' }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contact & Social Links -->
+                            <div class="card bg-light border-0 mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-3" style="color: var(--dark-text);">
+                                        <i class="fa fa-link me-2"></i>Contact Information
+                                    </h5>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="id_phone_number" class="form-label fw-medium mb-2" style="color: var(--dark-text);">Phone Number</label>
+                                                <input type="tel" class="form-control" name="phone_number" id="id_phone_number" value="{{ form.phone_number.value|default:'' }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="id_linkedin_profile" class="form-label fw-medium mb-2" style="color: var(--dark-text);">LinkedIn Profile</label>
+                                                <input type="url" class="form-control" name="linkedin_profile" id="id_linkedin_profile" value="{{ form.linkedin_profile.value|default:'' }}" placeholder="https://linkedin.com/in/username">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="id_github_profile" class="form-label fw-medium mb-2" style="color: var(--dark-text);">GitHub Profile</label>
+                                                <input type="url" class="form-control" name="github_profile" id="id_github_profile" value="{{ form.github_profile.value|default:'' }}" placeholder="https://github.com/username">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="id_portfolio_website" class="form-label fw-medium mb-2" style="color: var(--dark-text);">Portfolio Website</label>
+                                                <input type="url" class="form-control" name="portfolio_website" id="id_portfolio_website" value="{{ form.portfolio_website.value|default:'' }}" placeholder="https://yourportfolio.com">
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="id_address" class="form-label fw-medium mb-2" style="color: var(--dark-text);">Address</label>
+                                                <textarea class="form-control" name="address" id="id_address" rows="2">{{ form.address.value|default:'' }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+                                <a href="javascript:history.back()" class="btn btn-light px-4 rounded-pill">
+                                    <i class="fa fa-arrow-left me-2"></i>Back
+                                </a>
+                                <button type="submit" class="btn px-4 rounded-pill"
+                                        style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); border: none; color: #fff;">
+                                    <i class="fa fa-save me-2"></i>Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

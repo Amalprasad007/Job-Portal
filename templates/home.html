@@ -1,0 +1,399 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body_class %}page-with-hero{% endblock %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        --primary-color: #8B4513;
+        --secondary-color: #6B3410;
+        --accent-color: #A65D1E;
+        --text-color: #1f2937;
+        --light-bg: #f5f2f0;
+    }
+    .hero-section {
+        position: relative;
+        background: url('{% static "img/12.jpg" %}') center/cover no-repeat;
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+    }
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: linear-gradient(135deg, rgba(139, 69, 19, 0.2) 0%, rgba(107, 52, 16, 0.2) 100%);
+    }
+    .hero-section .container {
+        position: relative;
+        z-index: 1;
+    }
+    .hero-section .display-4 {
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .search-box {
+        transform: translateY(50px);
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px);
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        padding: 2rem !important;
+    }
+    .search-box .input-group {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    .search-box .input-group:hover,
+    .search-box .input-group:focus-within {
+        background: #fff;
+        box-shadow: 0 4px 15px rgba(139, 69, 19, 0.1);
+    }
+    .search-box .input-group-text {
+        background: transparent;
+        border: none;
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        padding-left: 1rem;
+    }
+    .search-box .form-control {
+        border: none;
+        background: transparent;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+    }
+    .search-box .btn-primary {
+        border-radius: 10px;
+        padding: 0.75rem;
+        font-weight: 600;
+        background: var(--primary-color);
+        border: none;
+        transition: all 0.3s ease;
+    }
+    .search-box .btn-primary:hover {
+        background: var(--secondary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(139, 69, 19, 0.2);
+    }
+    .featured-jobs {
+        padding-top: 100px;
+        background: var(--light-bg);
+    }
+    .card {
+        transition: all 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+    }
+    .badge {
+        padding: 0.5em 1em;
+        font-weight: 500;
+    }
+    .badge-soft-success {
+        color: var(--primary-color);
+        background-color: rgba(139, 69, 19, 0.1);
+    }
+    .badge-soft-primary {
+        color: var(--secondary-color);
+        background-color: rgba(107, 52, 16, 0.1);
+    }
+    .badge-soft-warning {
+        color: var(--accent-color);
+        background-color: rgba(166, 93, 30, 0.1);
+    }
+    .cta-section {
+        position: relative;
+        background: url('{% static "img/startup.jpg" %}') center/cover fixed no-repeat;
+    }
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: linear-gradient(135deg, rgba(139, 69, 19, 0.97) 0%, rgba(107, 52, 16, 0.95) 100%);
+    }
+    .trending-jobs .card {
+        border-left: 4px solid var(--primary-color);
+    }
+    .btn-lg {
+        padding: 1rem 2rem;
+        font-weight: 600;
+    }
+    .input-group-text {
+        min-width: 46px;
+        justify-content: center;
+        background-color: transparent;
+        border-right: none;
+    }
+    .form-control {
+        border-left: none;
+        padding-left: 0;
+    }
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #ced4da;
+    }
+    .company-logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        object-fit: cover;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .job-stats {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        background: rgba(139, 69, 19, 0.05);
+        border-radius: 50px;
+        font-size: 0.875rem;
+        margin-right: 0.5rem;
+    }
+    .animate-up {
+        animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+        100% { transform: translateY(0px); }
+    }
+    .btn-outline-primary {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: #fff;
+    }
+    .search-box .form-group {
+        position: relative;
+        margin-bottom: 0;
+    }
+    .search-box .form-group::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 60%;
+        width: 1px;
+        background: rgba(0,0,0,0.1);
+    }
+    .search-box .col-md-2 .form-group::after {
+        display: none;
+    }
+    .search-box label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #495057;
+    }
+    .dashboard-btn {
+        background: var(--primary-color);
+        color: white;
+        border-radius: 30px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    .dashboard-btn:hover {
+        background: white;
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+    }
+    .dashboard-btn i {
+        margin-right: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero-section text-white text-center">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-8">
+                    <h1 class="display-4 mb-4">The Easiest Way To Get Your Dream Job</h1>
+                    <p class="lead mb-5">Unlock endless opportunities and take the first step toward your dream career today!</p>
+                    
+                    <!-- Search Box -->
+                    <div class="search-box card p-4 mt-4">
+                        <form action="{% url 'jobs:search' %}" class="row g-4">
+                            <div class="col-12 col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input type="text" name="position" class="form-control" placeholder="Job Title or Keywords">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </span>
+                                    <input type="text" name="location" class="form-control" placeholder="Location">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-search me-2"></i>Search
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true" class="modal fade">
+        <div role="document" class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h4 id="loginModalLabel" class="modal-title font-weight-bold">Welcome Back</h4>
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body px-4">
+                    <form action="" method="post">
+                        <div class="form-group">
+                            <label for="email_modal" class="small text-muted">Email Address</label>
+                            <input id="email_modal" type="email" class="form-control form-control-lg" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password_modal" class="small text-muted">Password</label>
+                            <input id="password_modal" type="password" class="form-control form-control-lg" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg">Sign In</button>
+                    </form>
+                    <div class="text-center mt-4">
+                        <p class="text-muted">New to our platform?</p>
+                        <a href="client-register.html" class="btn btn-outline-primary">Create Account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Jobs Section -->
+    <section class="featured-jobs">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-lg-12 text-center">
+                    <h2 class="display-4 mb-3">Top Picks for You</h2>
+                    <p class="lead text-muted">Discover exclusive job openings just for you.</p>
+                </div>
+            </div>
+            <div class="row">
+                {% for job in jobs %}
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                
+                                <div>
+                                    <h5 class="card-title mb-0"><a href="{% url 'jobs:jobs-detail' job.id %}" class="text-dark">{{ job.title }}</a></h5>
+                                    <p class="text-muted small mb-0">{{ job.company_name}}</p>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <span class="job-stats">
+                                    <i class="fa fa-map-marker text-muted mr-1"></i>
+                                    {{ job.location }}
+                                </span>
+                                {% if job.type == '1' %}
+                                    <span class="badge badge-soft-success">Full time</span>
+                                {% elif job.type == '2' %}
+                                    <span class="badge badge-soft-primary">Part time</span>
+                                {% else %}
+                                    <span class="badge badge-soft-warning">Internship</span>
+                                {% endif %}
+                            </div>
+                            <p class="card-text text-muted">{{ job.description|truncatewords:20 }}</p>
+                            <a href="{% url 'jobs:jobs-detail' job.id %}" class="btn btn-outline-primary btn-sm">View Job</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Trending Jobs Section -->
+    <section class="trending-jobs py-5">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-lg-12">
+                    <h2 class="display-4 mb-3">Most Popular Jobs</h2>
+                    <p class="lead text-muted">Jobs Everyone’s Applying For!</p>
+                </div>
+            </div>
+            {% for trending in trendings %}
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6">
+                            <div class="d-flex align-items-center">
+                              
+                                <div>
+                                    <h5 class="mb-1"><a href="{% url 'jobs:jobs-detail' trending.id %}" class="text-dark">{{ trending.title }}</a></h5>
+                                    <p class="text-muted mb-0">{{ trending.company_name}}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="job-stats">
+                                <i class="fa fa-map-marker mr-1"></i>
+                                {{ trending.location }}
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="job-stats">
+                                <i class="fa fa-clock-o mr-1"></i>
+                                {{ trending.created_at|timesince }} ago
+                            </div>
+                        </div>
+                        <div class="col-lg-2 text-lg-right">
+                            <a href="{% url 'jobs:jobs-detail' trending.id %}" class="btn btn-outline-primary">
+                                Apply
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section py-5 text-white position-relative">
+        <div class="container text-center position-relative">
+            <h2 class="display-4 mb-4">Let’s Get You Closer to Your Dream Job!</h2>
+            <p class="lead mb-4">Be part of a thriving community of professionals who found success!</p>
+            <a href="{% url 'jobs:jobs' %}" class="btn btn-lg btn-outline-light px-5">
+                <!--<i class="fa fa-search mr-2"></i>-->Search All Available Jobs
+            </a>
+        </div>
+    </section>
+{% endblock %}

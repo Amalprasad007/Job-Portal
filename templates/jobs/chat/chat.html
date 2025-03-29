@@ -1,0 +1,208 @@
+{% extends 'employer/base.html' %}
+{% load static %}
+
+{% block title %}Chat with {{ other_user.get_full_name }}{% endblock %}
+
+{% block styles %}
+<style>
+    .chat-container {
+        height: calc(100vh - 200px);
+        min-height: 500px;
+    }
+    
+    .message {
+        max-width: 80%;
+        margin-bottom: 0.75rem;
+    }
+    
+    .message-content {
+        word-break: break-word;
+        padding: 0.75rem 1rem;
+        border-radius: 1rem;
+    }
+    
+    .message.sender .message-content {
+        background-color: #007bff;
+        color: white;
+        border-bottom-right-radius: 0.25rem;
+    }
+    
+    .message.receiver .message-content {
+        background-color: #e9ecef;
+        color: #212529;
+        border-bottom-left-radius: 0.25rem;
+    }
+    
+    #chat-messages {
+        height: calc(100% - 60px);
+        overflow-y: auto;
+        background-color: #f8f9fa;
+        padding: 1rem;
+    }
+    
+    .message-form {
+        background-color: #fff;
+        border-top: 1px solid rgba(0,0,0,0.1);
+        padding: 1rem;
+    }
+
+    .error-message {
+        display: none;
+        color: #dc3545;
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card chat-container shadow">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-0">
+                    <i class="fas fa-comments me-2"></i>Chat with {{ other_user.get_full_name }}
+                </h5>
+            </div>
+            <div>
+                {% if request.user.role == 'employer' %}
+                    <a href="{% url 'jobs:employer-dashboard' %}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                    </a>
+                {% else %}
+                    <a href="{% url 'jobs:employee-dashboard' %}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        <div id="chat-messages">
+            <div id="messages-container">
+                {% for message in messages %}
+                    <div class="message {% if message.sender == request.user %}sender ms-auto{% else %}receiver{% endif %}" data-message-id="{{ message.id }}">
+                        <div class="message-content">{{ message.content }}</div>
+                    </div>
+                {% empty %}
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-comments fa-3x mb-3"></i>
+                        <p>No messages yet. Start the conversation!</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="message-form">
+            <form id="message-form" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="receiver_id" value="{{ other_user.id }}">
+                {% if job %}
+                <input type="hidden" name="job_id" value="{{ job.id }}">
+                {% endif %}
+                <div class="d-flex gap-2">
+                    <input type="text" name="message" class="form-control" placeholder="Type your message..." required>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="error-message" id="error-message"></div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const messagesContainer = document.getElementById('chat-messages');
+    const messageForm = document.getElementById('message-form');
+    const errorMessage = document.getElementById('error-message');
+    
+    function scrollToBottom() {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+        }, 5000);
+    }
+    
+    function getLastMessageId() {
+        const lastMessage = document.querySelector('.message:last-child');
+        return lastMessage ? lastMessage.dataset.messageId : '0';
+    }
+    
+    function addNewMessage(message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${message.is_sender ? 'sender ms-auto' : 'receiver'}`;
+        messageDiv.dataset.messageId = message.id;
+        messageDiv.innerHTML = `
+            <div class="message-content">${message.content}</div>
+        `;
+        document.getElementById('messages-container').appendChild(messageDiv);
+        scrollToBottom();
+    }
+    
+    scrollToBottom();
+    
+    messageForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const submitButton = this.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json().then(data => ({
+            ok: response.ok,
+            status: response.status,
+            data: data
+        })))
+        .then(({ok, status, data}) => {
+            if (ok && data.success) {
+                messageForm.reset();
+                errorMessage.style.display = 'none';
+                addNewMessage(data.message);
+            } else {
+                showError(data.error || 'Failed to send message. Please try again.');
+            }
+        })
+        .catch(() => {
+            showError('Network error. Please check your connection and try again.');
+        })
+        .finally(() => {
+            submitButton.disabled = false;
+        });
+    });
+    
+    function pollMessages() {
+        const lastMessageId = getLastMessageId();
+        
+        fetch(`${window.location.href}?last_message_id=${lastMessageId}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.messages?.length > 0) {
+                data.messages.forEach(addNewMessage);
+            }
+        })
+        .catch(error => {
+            console.error('Error polling messages:', error);
+        });
+    }
+    
+    setInterval(pollMessages, 3000);
+</script>
+{% endblock %}

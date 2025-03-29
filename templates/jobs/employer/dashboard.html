@@ -1,0 +1,342 @@
+{% extends 'employer/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block styles %}
+<style>
+    /* Dashboard Container */
+    .dashboard-container {
+        padding: 2rem;
+        background-color: #f8f9fa;
+    }
+
+    /* Updated Header Design */
+    .dashboard-header {
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(to right, #3498db, #2ecc71, #e74c3c);
+    }
+
+    .dashboard-header .d-flex {
+        position: relative;
+        z-index: 1;
+    }
+
+    .dashboard-header h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .dashboard-header h2::before {
+        content: '👋';
+        font-size: 1.8rem;
+    }
+
+    .dashboard-header .btn-primary {
+        padding: 0.8rem 1.5rem;
+        font-weight: 600;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+    }
+
+    .dashboard-header .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+    }
+
+    .dashboard-header .btn-primary i {
+        font-size: 1.1rem;
+    }
+
+    /* Optional: Add a welcome message */
+    .welcome-message {
+        color: #95a5a6;
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+        font-weight: 400;
+    }
+
+    /* Optional: Add header stats summary */
+    .header-quick-stats {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .quick-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .quick-stat-icon {
+        width: 35px;
+        height: 35px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .quick-stat-info {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+    }
+
+    .quick-stat-number {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.1rem;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stats-card {
+        background: #fff;
+        border-radius: 15px;
+        padding: 1.8rem;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .stats-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+
+    .stats-card.jobs .stats-icon { 
+        background-color: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+    }
+
+    .stats-card.applicants .stats-icon { 
+        background-color: rgba(46, 204, 113, 0.1);
+        color: #2ecc71;
+    }
+
+    .stats-card.filled .stats-icon { 
+        background-color: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+    }
+
+    .stats-info {
+        flex-grow: 1;
+    }
+
+    .stats-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.2rem;
+        line-height: 1;
+    }
+
+    .stats-label {
+        color: #95a5a6;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    /* Jobs List */
+    .jobs-section {
+        background: #fff;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .job-card {
+        border: 1px solid #eee;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .job-card:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        border-color: transparent;
+    }
+
+    .job-title {
+        font-size: 1.2rem;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .job-meta {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 0.8rem;
+        color: #7f8c8d;
+    }
+
+    .job-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    /* Status Badges */
+    .badge-soft-success {
+        background-color: rgba(46, 125, 50, 0.1);
+        color: #2e7d32;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    .badge-soft-warning {
+        background-color: rgba(251, 140, 0, 0.1);
+        color: #fb8c00;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #bdc3c7;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h2 class="mb-2">Dashboard Overview</h2>
+                <p class="welcome-message">Welcome back! Here's what's happening with your jobs</p>
+                
+                
+            </div>
+            
+            <a href="{% url 'jobs:employer-jobs-create' %}" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i>
+                Post New Job
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stats-card jobs">
+            <div class="stats-icon">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <div class="stats-info">
+                <div class="stats-number">{{ total_jobs }}</div>
+                <div class="stats-label">Total Jobs Posted</div>
+            </div>
+        </div>
+        <div class="stats-card applicants">
+            <div class="stats-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stats-info">
+                <div class="stats-number">{{ total_applicants }}</div>
+                <div class="stats-label">Total Applicants</div>
+            </div>
+        </div>
+        <div class="stats-card filled">
+            <div class="stats-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stats-info">
+                <div class="stats-number">{{ total_filled }}</div>
+                <div class="stats-label">Hiring Completed</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Jobs -->
+    <div class="jobs-section">
+        <h3 class="h4 mb-4">Recent Job Postings</h3>
+        {% for job in jobs %}
+        <div class="job-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h4 class="job-title">{{ job.title }}</h4>
+                    <div class="job-meta">
+                        <span><i class="fas fa-building me-2"></i>{{ job.company_name }}</span>
+                        <span><i class="fas fa-map-marker-alt me-2"></i>{{ job.location }}</span>
+                        <span><i class="fas fa-clock me-2"></i>Posted {{ job.created_at|timesince }} ago</span>
+                    </div>
+                </div>
+                <div class="job-actions">
+                    {% if job.filled %}
+                    <span class="badge badge-soft-success">Closed</span>
+                    {% else %}
+                    <span class="badge badge-soft-warning">Active</span>
+                    {% endif %}
+                    <a href="{% url 'jobs:employer-dashboard-applicants' job.id %}" class="btn btn-sm btn-outline-primary">
+                        View Applicants
+                    </a>
+                    <a href="{% url 'jobs:job-mark-filled' job.id %}" class="btn btn-sm {% if job.filled %}btn-outline-warning{% else %}btn-outline-success{% endif %}">
+                        {% if job.filled %}Mark as Active{% else %}Mark as Closed{% endif %}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <i class="fas fa-clipboard-list"></i>
+            <p class="lead text-muted">No jobs posted yet</p>
+            <a href="{% url 'jobs:employer-jobs-create' %}" class="btn btn-primary">Post Your First Job</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

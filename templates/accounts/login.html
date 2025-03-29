@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+<section class="py-5" style="background: url('{% static "img/12.jpg" %}') center/cover no-repeat; position: relative; min-height: 100vh;">
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="row justify-content-center">
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-lg rounded-3" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-5">
+                            <h2 class="fw-bold mb-3" style="color: #8B4513; font-size: 2.2rem;">Hello Again!</h2>
+                            <p style="color:rgb(9, 10, 19); font-size: 1.1rem;">Sign in to continue</p>
+                        </div>
+
+                        {% if form.errors %}
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-3" role="alert" 
+                                         style="background-color: rgba(220, 53, 69, 0.1); border: none; color: #dc3545;">
+                                        <i class="fa fa-exclamation-circle me-2"></i>
+                                        {{ error|escape }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-3" role="alert"
+                                     style="background-color: rgba(220, 53, 69, 0.1); border: none; color: #dc3545;">
+                                    <i class="fa fa-exclamation-circle me-2"></i>
+                                    {{ error|escape }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            {% for field in form %}
+                                <div class="form-group mb-4">
+                                    <label for="id_{{ field.name }}" class="form-label fw-medium mb-2" 
+                                           style="color:rgb(8, 9, 16); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        {{ field.label }}
+                                    </label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text border-end-0" 
+                                              style="background: white; border: 2px solid #e0e0e0; border-right: none;">
+                                            <i class="fa fa-{% if field.name == 'username' %}user{% else %}lock{% endif %}" 
+                                               style="color:rgb(14, 16, 23);"></i>
+                                        </span>
+                                        <input type="{{ field.field.widget.input_type }}"
+                                               class="form-control border-start-0 ps-0"
+                                               name="{{ field.name }}"
+                                               id="id_{{ field.name }}"
+                                               placeholder="{{ field.field.widget.attrs.placeholder }}"
+                                               style="border: 2px solid #e0e0e0; border-left: none; background-color: white; font-size: 1rem; padding: 0.75rem 1rem;">
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                            <div class="d-grid gap-2 mt-5">
+                                <button type="submit" class="btn btn-lg rounded-pill py-3"
+                                        style="background: linear-gradient(135deg, #8B4513 0%, #8B4513 100%); 
+                                               border: none; color: white; font-size: 1.1rem; 
+                                               box-shadow: 0 4px 15px rgba(13, 13, 17, 0.35);
+                                               transition: all 0.3s ease;">
+                                    <i class="fa fa-sign-in me-2"></i>Sign In
+                                </button>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <p style="color: #757575; font-size: 1rem;">Don't have an account? 
+                                    <a href="{% url 'accounts:employee-register' %}" 
+                                       style="color:rgb(17, 18, 24); font-weight: 600; text-decoration: none; 
+                                              transition: color 0.3s ease;">Sign Up</a>
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chat with {{ other_user.get_full_name }}{% endblock %}
+
+{% block styles %}
+<style>
+    .chat-container {
+        height: calc(100vh - 200px);
+        min-height: 500px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .chat-header {
+        background-color: #343a40;
+        color: white;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .messages-container {
+        height: calc(100% - 120px);
+        overflow-y: auto;
+        padding: 1rem;
+    }
+    
+    .message {
+        max-width: 70%;
+        margin-bottom: 1rem;
+        clear: both;
+    }
+    
+    .message.sent {
+        float: right;
+    }
+    
+    .message.received {
+        float: left;
+    }
+    
+    .message-bubble {
+        padding: 0.75rem 1rem;
+        border-radius: 15px;
+        display: inline-block;
+        word-break: break-word;
+    }
+    
+    .message.sent .message-bubble {
+        background-color: #007bff;
+        color: white;
+        border-bottom-right-radius: 5px;
+    }
+    
+    .message.received .message-bubble {
+        background-color: #e9ecef;
+        color: #212529;
+        border-bottom-left-radius: 5px;
+    }
+    
+    .message-input {
+        background-color: white;
+        border-top: 1px solid #dee2e6;
+        padding: 1rem;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+    
+    .message-form {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .message-form input {
+        flex: 1;
+        border-radius: 20px;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .message-form button {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .error-message {
+        display: none;
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="chat-container shadow position-relative">
+        <div class="chat-header">
+            <h5 class="mb-0">
+                <i class="fas fa-comments me-2"></i>
+                {{ other_user.get_full_name }}
+            </h5>
+            <a href="{% url 'jobs:employee-dashboard' %}" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Back
+            </a>
+        </div>
+        
+        <div class="messages-container" id="messages-container">
+            {% for message in messages %}
+                <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}" data-message-id="{{ message.id }}">
+                    <div class="message-bubble">{{ message.content }}</div>
+                </div>
+            {% empty %}
+                <div class="text-center text-muted py-5">
+                    <i class="fas fa-comments fa-3x mb-3 d-block"></i>
+                    <p class="mb-0">No messages yet. Start the conversation!</p>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="message-input">
+            <form id="message-form" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="receiver_id" value="{{ other_user.id }}">
+                <div class="message-form">
+                    <input type="text" name="message" class="form-control" placeholder="Type your message..." required>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="error-message" id="error-message"></div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const messagesContainer = document.querySelector('.messages-container');
+    const messageForm = document.getElementById('message-form');
+    const errorMessage = document.getElementById('error-message');
+    
+    function scrollToBottom() {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+        }, 5000);
+    }
+    
+    function getLastMessageId() {
+        const lastMessage = document.querySelector('.message:last-child');
+        return lastMessage ? lastMessage.dataset.messageId : '0';
+    }
+    
+    function addNewMessage(message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${message.is_sender ? 'sent' : 'received'}`;
+        messageDiv.dataset.messageId = message.id;
+        messageDiv.innerHTML = `<div class="message-bubble">${message.content}</div>`;
+        messagesContainer.appendChild(messageDiv);
+        scrollToBottom();
+    }
+    
+    scrollToBottom();
+    
+    messageForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const submitButton = this.querySelector('button');
+        submitButton.disabled = true;
+        
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json().then(data => ({ok: response.ok, data})))
+        .then(({ok, data}) => {
+            if (ok && data.success) {
+                this.reset();
+                errorMessage.style.display = 'none';
+                addNewMessage(data.message);
+            } else {
+                showError(data.error || 'Failed to send message');
+            }
+        })
+        .catch(() => {
+            showError('Network error. Please try again');
+        })
+        .finally(() => {
+            submitButton.disabled = false;
+        });
+    });
+    
+    function pollMessages() {
+        const lastMessageId = getLastMessageId();
+        fetch(`${window.location.href}?last_message_id=${lastMessageId}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.messages?.length > 0) {
+                data.messages.forEach(addNewMessage);
+            }
+        })
+        .catch(error => {
+            console.error('Error polling messages:', error);
+        });
+    }
+    
+    setInterval(pollMessages, 3000);
+</script>
+{% endblock %}

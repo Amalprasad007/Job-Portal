@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load is_already_applied %}
+{% block title %}
+    Job details
+{% endblock %}
+
+{% block content %}
+    <!-- Job Header Section -->
+    <section class="position-relative py-5" style="background: linear-gradient(135deg,rgb(233, 174, 119) 0%,rgb(211, 111, 29) 100%);">
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background-image: url('{% static 'img/pattern.png' %}'); opacity: 0.05;"></div>
+        <div class="container position-relative">
+            <div class="text-dark">
+                <span class="badge bg-primary text-white mb-3 px-3 py-2 rounded-pill">{{ job.category }}</span>
+                <h1 class="display-4 fw-bold mb-3 text-dark">{{ job.title }}</h1>
+                <h4 class="mb-4 text-dark">at <a href="#" class="text-primary text-decoration-none fw-bold">{{ job.company_name }}</a></h4>
+                <div class="d-flex align-items-center gap-4 flex-wrap">
+                    <div class="d-flex align-items-center text-dark">
+                        <i class="fa fa-map-marker me-2"></i>
+                        {{ job.location }}
+                    </div>
+                    <div class="d-flex align-items-center text-dark">
+                        <i class="fa fa-clock-o me-2"></i>
+                        Posted {{ job.created_at|timesince }} ago
+                    </div>
+                    <div>
+                        {% if job.type == '1' %}
+                            <span class="badge bg-success rounded-pill px-4 py-2">
+                                <i class="fa fa-briefcase me-1"></i> Full time
+                            </span>
+                        {% elif job.type == '2' %}
+                            <span class="badge bg-info rounded-pill px-4 py-2">
+                                <i class="fa fa-clock-o me-1"></i> Part time
+                            </span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark rounded-pill px-4 py-2">
+                                <i class="fa fa-graduation-cap me-1"></i> Internship
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Job Details Section -->
+    <section class="py-5" style="background-color: white;">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card border-0 rounded-3 shadow-sm hover-shadow-lg transition-all">
+                        <div class="card-body p-4">
+                            <div class="mb-4">
+                                <div class="p-3 rounded-3 bg-light border-start border-4 border-primary">
+                                    <h6 class="mb-2 text-dark">
+                                        <i class="fa fa-calendar me-2 text-primary"></i>Application Deadline
+                                    </h6>
+                                    <p class="h6 mb-0 text-dark">{{ job.last_date|date }}</p>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h5 class="fw-bold mb-3 text-dark border-bottom pb-2">Job Description</h5>
+                                <div class="lh-lg text-dark">{{ job.description }}</div>
+                            </div>
+
+                            <div class="mt-4 text-center">
+                                {% if job.filled %}
+                                    <button class="btn btn-secondary btn-lg px-5 rounded-pill" disabled>
+                                        <i class="fa fa-times me-2"></i>Position Filled
+                                    </button>
+                                {% elif request.user.is_authenticated %}
+                                    {% is_already_applied job request.user as is_applied %}
+                                    {% if is_applied %}
+                                        <button class="btn btn-secondary btn-lg px-5 rounded-pill" disabled>
+                                            <i class="fa fa-check me-2"></i>Already Applied
+                                        </button>
+                                    {% else %}
+                                        <form action="{% url 'jobs:apply-job' job.id %}" method="post" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="job" value="{{ job.id }}">
+                                            <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill hover-shadow-lg">
+                                                <i class="fa fa-paper-plane me-2"></i>Apply Now
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                {% else %}
+                                    <form action="{% url 'jobs:apply-job' job.id %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="job" value="{{ job.id }}">
+                                        <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill hover-shadow-lg">
+                                            <i class="fa fa-paper-plane me-2"></i>Apply Now
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card border-0 rounded-3 shadow-sm hover-shadow-lg transition-all">
+                        <div class="card-body p-4">
+                            <div class="text-center mb-4">
+                                <div class="mb-3">
+                                    
+                                </div>
+                                <h4 class="card-title fw-bold text-dark">{{ job.company_name }}</h4>
+                            </div>
+                            
+                            <p class="card-text text-dark mb-4">{{ job.company_description }}</p>
+                            
+                            <div class="d-flex justify-content-center gap-2 mb-4">
+                                {% if job.website %}
+                                <a href="{{ job.website }}" class="btn btn-light btn-sm rounded-pill px-3 hover-shadow" target="_blank">
+                                    <i class="fa fa-link me-2 text-primary"></i>Website
+                                </a>
+                                {% endif %}
+                               
+                            </div>
+
+                            {% if job.filled %}
+                                <button class="btn btn-secondary w-100 rounded-pill" disabled>
+                                    <i class="fa fa-times me-2"></i>Position Filled
+                                </button>
+                            {% elif request.user.is_authenticated %}
+                                {% is_already_applied job request.user as is_applied %}
+                                {% if is_applied %}
+                                    <button class="btn btn-secondary w-100 rounded-pill" disabled>
+                                        <i class="fa fa-check me-2"></i>Already Applied
+                                    </button>
+                                {% else %}
+                                    <form action="{% url 'jobs:apply-job' job.id %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="job" value="{{ job.id }}">
+                                        <button type="submit" class="btn btn-primary w-100 rounded-pill hover-shadow-lg">
+                                            <i class="fa fa-paper-plane me-2"></i>Apply Now
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            {% else %}
+                                <form action="{% url 'jobs:apply-job' job.id %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="job" value="{{ job.id }}">
+                                    <button type="submit" class="btn btn-primary w-100 rounded-pill hover-shadow-lg">
+                                        <i class="fa fa-paper-plane me-2"></i>Apply Now
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

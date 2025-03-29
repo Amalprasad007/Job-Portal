@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Search Jobs - WorkSphere
+{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<style>
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .hover-scale:hover {
+        transform: scale(1.05);
+    }
+    
+    .stretched-link::after {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1;
+        content: "";
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Search Header Section -->
+    <section class="position-relative py-5" style="background-color: var(--light-bg);">
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background-image: url('{% static 'img/pattern.png' %}'); opacity: 0.05;"></div>
+        <div class="container position-relative">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold mb-3" style="color: var(--dark-text);">Your Next Career Move Awaits!</h1>
+                <p class="lead text-secondary">Discover countless job opportunities tailored to your skills.</p>
+            </div>
+            
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4">
+                    <form id="job-search-form" method="get" action="{% url 'jobs:search' %}" class="row g-3">
+                        <div class="col-md-5">
+                            <div class="form-floating">
+                                <input type="text" id="position" name="position" class="form-control" placeholder="Position" value="{{ request.GET.position|default:'' }}">
+                                <label for="position">Position</label>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-floating">
+                                <input type="text" id="location" name="location" class="form-control" placeholder="Location" value="{{ request.GET.location|default:'' }}">
+                                <label for="location">Location</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-dark w-100 h-100" 
+                                    style="background: linear-gradient(135deg,rgba(175, 78, 4, 0.92) 0%, #8B4513 100%); border: none; transition: all 0.3s ease;">
+                                <i class="fas fa-search me-2"></i>Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Results Section -->
+    <section class="py-5" style="background-color: var(--light-bg);">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold m-0" style="color: var(--dark-text);">  <span class="">{{ jobs.count }}</span> Jobs Available</h4>
+            </div>
+
+            <!-- Job Listings -->
+            <div class="row g-4">
+                {% for job in jobs %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden animate__animated animate__fadeIn"
+                         style="transition: transform 0.3s ease-in-out;">
+                        <div class="card-body p-4">
+                            <div class="d-flex flex-column h-100">
+                                <!-- Company Info -->
+                                <div class="mb-4">
+                                    <h5 class="card-title mb-2">
+                                        <a href="{% url 'jobs:jobs-detail' job.id %}" 
+                                           class="text-decoration-none stretched-link" 
+                                           style="color: var(--dark-text);">
+                                            {{ job.title }}
+                                        </a>
+                                    </h5>
+                                    <p class="text-secondary mb-0 fw-bold">{{ job.company_name }}</p>
+                                </div>
+                                
+                                <!-- Job Details -->
+                                <div class="mt-auto">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="fa fa-map-marker me-2" style="color: #8B4513;"></i>
+                                        <span class="text-secondary">{{ job.location }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="fa fa-clock-o me-2" style="color: #8B4513;"></i>
+                                        <span class="text-secondary">{{ job.created_at|timesince }} ago</span>
+                                    </div>
+                                    <div class="text-end mt-3">
+                                        <a href="{% url 'jobs:jobs-detail' job.id %}" 
+                                           class="btn btn-outline-dark rounded-pill px-4 hover-scale"
+                                           style="border-color: var(--dark-text); transition: transform 0.2s;">
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="d-flex justify-content-center mt-5">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous"
+                               style="color: var(--dark-text);">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for i in page_obj.paginator.page_range %}
+                        <li class="page-item {% if page_obj.number == i %}active{% endif %}">
+                            <a class="page-link" href="?page={{ i }}" 
+                               style="{% if page_obj.number == i %}background: linear-gradient(135deg, var(--dark-text) 0%, var(--dark-bg) 100%); border-color: var(--dark-text);{% else %}color: var(--dark-text);{% endif %}">
+                                {{ i }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next"
+                               style="color: var(--dark-text);">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}

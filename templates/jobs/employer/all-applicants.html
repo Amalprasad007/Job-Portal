@@ -1,0 +1,299 @@
+{% extends 'employer/base.html' %}
+{% load static %}
+
+{% block title %}All Applicants{% endblock %}
+
+{% block styles %}
+<style>
+    .applicant-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+        transition: transform 0.3s ease;
+    }
+    .applicant-card:hover {
+        transform: translateY(-5px);
+    }
+    .applicant-info {
+        padding: 1.5rem;
+    }
+    .applicant-name {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .applicant-meta {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+    }
+    .job-title {
+        color: #34495e;
+        font-weight: 500;
+    }
+    .badge-soft-primary {
+        background-color: rgba(52, 73, 94, 0.1);
+        color: #34495e;
+    }
+    .applicant-actions {
+        padding: 1rem 1.5rem;
+        background-color: #f8f9fa;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+    /* Dropup specific styles */
+    .dropup .dropdown-menu {
+        bottom: 100% !important;
+        top: auto !important;
+        margin-bottom: 0.125rem;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+    .dropup .dropdown-toggle::after {
+        vertical-align: middle;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    {% csrf_token %}
+    <div class="container py-4">
+   
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3 mb-0">All Applicants</h2>
+        <div class="d-flex align-items-center">
+            <div class="me-3">
+                <span class="text-muted">Total Applications:</span>
+                <span class="h5 mb-0 ms-2">{{ applicants.count }}</span>
+            </div>
+            <!-- Sort Dropdown -->
+            <div class="dropdown me-2">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown">
+                    <i class="fas fa-sort me-2"></i>Sort
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item {% if current_sort == 'latest' %}active{% endif %}" 
+                           href="?sort=latest{% if current_job %}&job={{ current_job }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">
+                            <i class="fas fa-clock me-2"></i>Latest First
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item {% if current_sort == 'oldest' %}active{% endif %}" 
+                           href="?sort=oldest{% if current_job %}&job={{ current_job }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">
+                            <i class="fas fa-history me-2"></i>Oldest First
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!-- Job Filter Dropdown -->
+            <div class="dropdown me-2">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="jobFilterDropdown" data-bs-toggle="dropdown">
+                    <i class="fas fa-briefcase me-2"></i>Filter by Job
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item {% if not current_job %}active{% endif %}" 
+                           href="?{% if current_sort %}sort={{ current_sort }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">
+                            <i class="fas fa-globe me-2"></i>All Jobs
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    {% for job in jobs %}
+                    <li>
+                        <a class="dropdown-item {% if current_job == job.id|stringformat:'i' %}active{% endif %}" 
+                           href="?job={{ job.id }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">
+                            <i class="fas fa-file-alt me-2"></i>{{ job.title }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <!-- Status Filter Dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="statusFilterDropdown" data-bs-toggle="dropdown">
+                    <i class="fas fa-filter me-2"></i>Filter by Status
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item {% if not current_status %}active{% endif %}" 
+                           href="?{% if current_sort %}sort={{ current_sort }}{% endif %}{% if current_job %}&job={{ current_job }}{% endif %}">
+                            <i class="fas fa-globe me-2"></i>All Status
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item {% if current_status == 'shortlisted' %}active{% endif %}" 
+                           href="?status=shortlisted{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_job %}&job={{ current_job }}{% endif %}">
+                            <i class="fas fa-check me-2"></i>Shortlisted
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item {% if current_status == 'rejected' %}active{% endif %}" 
+                           href="?status=rejected{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_job %}&job={{ current_job }}{% endif %}">
+                            <i class="fas fa-times me-2"></i>Rejected
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item {% if current_status == 'waiting' %}active{% endif %}" 
+                           href="?status=waiting{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_job %}&job={{ current_job }}{% endif %}">
+                            <i class="fas fa-hourglass me-2"></i>Waiting
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applicants List -->
+    {% for applicant in applicants %}
+    <div class="card applicant-card">
+        <div class="applicant-info">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="applicant-name">
+                        <a href="{% url 'jobs:view-employee-profile' applicant.user.id %}" class="text-decoration-none">
+                            {{ applicant.user.get_full_name }}
+                        </a>
+                    </h4>
+                    <div class="applicant-meta">
+                        <span class="me-3"><i class="fas fa-envelope me-1"></i>{{ applicant.user.email }}</span>
+                        <span class="me-3"><i class="fas fa-clock me-1"></i>Applied {{ applicant.created_at|timesince }} ago</span>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge {% if applicant.status == 'shortlisted' %}bg-success{% elif applicant.status == 'rejected' %}bg-danger{% else %}bg-warning{% endif %} p-2">
+                            <i class="fas {% if applicant.status == 'shortlisted' %}fa-check{% elif applicant.status == 'rejected' %}fa-times{% else %}fa-hourglass{% endif %} me-1"></i>
+                            Status: <strong>{{ applicant.get_status_display }}</strong>
+                        </span>
+                    </div>
+                </div>
+                <span class="badge badge-soft-primary">
+                    <i class="fas fa-briefcase me-1"></i>{{ applicant.job.type }}
+                </span>
+            </div>
+            <div class="mt-3">
+                <h5 class="job-title">Applied for: {{ applicant.job.title }}</h5>
+                <p class="text-muted mb-0">{{ applicant.job.company_name }} - {{ applicant.job.location }}</p>
+            </div>
+        </div>
+        <div class="applicant-actions">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+
+                <a href="mailto:{{ applicant.user.email }}?subject=Regarding your application for {{ job.title }}" class="btn btn-sm btn-outline-primary me-2">
+                        <i class="fas fa-envelope me-1"></i>Contact
+                    </a>
+                    <a href="{% url 'jobs:view-resume' applicant.id %}" class="btn btn-sm btn-outline-success me-2" target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-file-alt me-1"></i>View Resume
+                    </a>
+                </div>
+                <div class="dropup">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cog me-1"></i>Actions
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item {% if applicant.status == 'shortlisted' %}active{% endif %}" href="#" 
+                               onclick="updateApplicationStatus({{ applicant.id }}, 'shortlisted')">
+                                <i class="fas fa-check me-2"></i>Shortlist
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item {% if applicant.status == 'rejected' %}active{% endif %}" href="#" 
+                               onclick="updateApplicationStatus({{ applicant.id }}, 'rejected')">
+                                <i class="fas fa-times me-2"></i>Reject
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item {% if applicant.status == 'waiting' %}active{% endif %}" href="#" 
+                               onclick="updateApplicationStatus({{ applicant.id }}, 'waiting')">
+                                <i class="fas fa-hourglass me-2"></i>Mark as Waiting
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div class="modal fade" id="contact-modal-{{ applicant.id }}" tabindex="-1" aria-labelledby="contactModalLabel-{{ applicant.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contactModalLabel-{{ applicant.id }}">Contact {{ applicant.user.get_full_name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" action="{% url 'jobs:contact-applicant' applicant.id %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="subject-{{ applicant.id }}" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject-{{ applicant.id }}" name="subject" 
+                                   placeholder="Enter email subject" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message-{{ applicant.id }}" class="form-label">Message</label>
+                            <textarea class="form-control" id="message-{{ applicant.id }}" name="message" 
+                                      rows="4" placeholder="Enter your message" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-5">
+        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+        <p class="lead text-muted">No applications received yet</p>
+        <a href="{% url 'jobs:employer-jobs-create' %}" class="btn btn-primary">Post a New Job</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateApplicationStatus(applicantId, status) {
+    // Get CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    fetch(`{% url 'jobs:update-application-status' 0 %}`.replace('0', applicantId), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrfToken
+        },
+        body: `status=${status}`
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || 'Failed to update status');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Success:', data);
+        if (data.success) {
+            // Show success message
+            alert('Status updated successfully!');
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(error.message || 'Failed to update status');
+    });
+}
+</script>
+{% endblock %}

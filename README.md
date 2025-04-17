@@ -7,7 +7,8 @@ pip install Django
 
 Do the Migrations using
 
-Python manage.py makemigrations
+Python manage.py makemigrations  
+
 python manage.py migrate
 
 then run the project using the command
